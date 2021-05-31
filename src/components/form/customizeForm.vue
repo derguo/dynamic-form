@@ -1,33 +1,13 @@
 <template>
-  <el-form
-    ref="form"
-    :inline="false"
-    :model="submitDate"
-    label-position="left"
-    v-bind="$attrs"
-    class="formStyle"
-  >
+  <el-form ref="form" :inline="false" :model="submitDate" label-position="left" v-bind="$attrs" class="formStyle">
     <el-row :gutter="10">
       <template v-for="(item, name) in relyData">
-        <el-col
-          v-show="item.show !== false"
-          v-if="item.used !== false"
-          :key="name"
-          :span="24 / columnNo"
-        >
+        <el-col v-show="item.show !== false" v-if="item.used !== false" :key="name" :span="24 / columnNo">
           <div class="indent" v-if="item.indent"></div>
           <div class="help">
-            <el-popover
-              v-if="item.help"
-              placement="top-start"
-              trigger="hover"
-              width="400"
-            >
+            <el-popover v-if="item.help" placement="top-start" trigger="hover" width="400">
               <el-table :data="item.help" :border="false" :show-header="false">
-                <el-table-column
-                  property="title"
-                  width="120px"
-                ></el-table-column>
+                <el-table-column property="title" width="120px"></el-table-column>
                 <el-table-column property="content"></el-table-column>
               </el-table>
               <i slot="reference" class="el-icon-question"></i>
@@ -51,22 +31,12 @@
               >
                 <el-radio
                   v-for="date in item.option.data"
-                  v-bind="
-                    item.option &&
-                    item.option.attrLogic &&
-                    item.option.attrLogic(date)
-                  "
-                  v-on="
-                    item.option &&
-                    item.option.eventLogic &&
-                    item.option.eventLogic(date)
-                  "
-                  :label="
-                    date[(item.props && item.props.valueFeild) || 'value']
-                  "
+                  v-bind="item.option && item.option.attrLogic && item.option.attrLogic(date)"
+                  v-on="item.option && item.option.eventLogic && item.option.eventLogic(date)"
+                  :label="date[(item.props && item.props.valueFeild) || 'value']"
                   :key="date[(item.props && item.props.valueFeild) || 'value']"
                 >
-                  {{ date[(item.props && item.props.labelFeild) || "label"] }}
+                  {{ date[(item.props && item.props.labelFeild) || 'label'] }}
                 </el-radio>
               </el-radio-group>
               <el-checkbox-group
@@ -97,15 +67,11 @@
                 <el-option
                   v-for="date in item.option && item.option.data"
                   :key="date[(item.props && item.props.valueFeild) || 'value']"
-                  :label="
-                    date[(item.props && item.props.labelFeild) || 'label']
-                  "
-                  :value="
-                    date[(item.props && item.props.valueFeild) || 'value']
-                  "
+                  :label="date[(item.props && item.props.labelFeild) || 'label']"
+                  :value="date[(item.props && item.props.valueFeild) || 'value']"
                   :disabled="date.disabled"
                 >
-                  <slot :name="name" :data="date" :node="node"></slot>
+                  <slot :name="name" :data="date"></slot>
                 </el-option>
               </el-select>
               <el-cascader
@@ -117,7 +83,7 @@
                 collapse-tags
                 style="width: 100%"
               >
-                <template v-slot="{ node, data }">
+                <template v-slot="{node, data}">
                   <slot :name="name" :data="data" :node="node"></slot>
                 </template>
               </el-cascader>
@@ -135,30 +101,39 @@
       </template>
     </el-row>
     <el-row>
-      <el-col span="12">{{ submitDate }}</el-col>
-      <el-col span="12"></el-col>
+      <el-col :span="12">{{ submitDate }}</el-col>
+      <el-col :span="12"></el-col>
     </el-row>
   </el-form>
 </template>
 
 <script>
-import cloneDeep from "lodash/cloneDeep";
+import cloneDeep from 'lodash/cloneDeep';
 
 export default {
-  name: "customizeForm",
+  name: 'customizeForm',
   model: {
-    prop: "modelDate",
-    event: "changeModelDate",
+    prop: 'modelDate',
+    event: 'changeModelDate',
   },
   props: {
+    /**
+     * 渲染表单数据
+     */
     relyData: {
       type: Object,
       default: {},
     },
+    /**
+     * 表单值
+     */
     modelDate: {
       type: Object,
       default: {},
     },
+    /**
+     * 表单布局（列数）
+     */
     columnNo: {
       type: Number,
       default: 1,
@@ -167,33 +142,40 @@ export default {
   data() {
     return {
       watches: [],
+      submitDate: {},
     };
+  },
+  watch: {
+    modelDate: {
+      handler(val) {
+        this.submitDate = cloneDeep(val);
+      },
+      deep: true,
+    },
   },
   methods: {
     /**
      * 每一项数据变化的时候都要抛出事件，双向绑定生效
      */
-    changeHandle: (function () {
-      let timer;
-      return function (type, e) {
-        this.$emit("changeModelDate", this.submitDate);
-        this.$emit("change", type, e);
-      };
-    })(),
+    changeHandle(type, e) {
+      console.log(type, e, this);
+      this.$emit('changeModelDate', this.submitDate);
+      this.$emit('change', type, e);
+    },
     /**
      * 重置表单数据为初始值，注意！是初始值并不是把所有相都制空
      */
     resetFields() {
       this.$nextTick(() => {
-        this.$refs["form"].resetFields();
-        this.$emit("changeModelDate", this.submitDate);
+        this.$refs['form'].resetFields();
+        this.$emit('changeModelDate', this.submitDate);
       });
     },
     /**
      * 清空所有表单数据
      */
     cleanFields() {
-      this.$emit("changeModelDate", {});
+      this.$emit('changeModelDate', {});
     },
     /**
      * 获取表单项实例
@@ -209,7 +191,7 @@ export default {
      */
     validate(callback) {
       this.$nextTick(() => {
-        this.$refs["form"].validate((valid, failedField) => {
+        this.$refs['form'].validate((valid, failedField) => {
           if (valid) {
             callback(valid, this.submitDate);
           } else {
@@ -220,7 +202,7 @@ export default {
     },
   },
   computed: {
-    submitDate() {
+    submitDate1() {
       let r = cloneDeep(this.modelDate);
       // for (const w of this.watches) {
       //     w();
@@ -229,9 +211,8 @@ export default {
       for (let key in this.relyData) {
         if (this.relyData[key].used !== false) {
           switch (this.relyData[key].type) {
-            case "checkbox":
-              r[key] =
-                this.modelDate[key] === undefined ? [] : this.modelDate[key];
+            case 'checkbox':
+              r[key] = this.modelDate[key] === undefined ? [] : this.modelDate[key];
               break;
             default:
               r[key] = this.modelDate[key];
